@@ -1,0 +1,103 @@
+name: "Run Ansible Playbook"
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: "Tags to run the playbook with"
+        required: false
+        default: "all"
+      limit:
+        description: "Limit the playbook to a specific host"
+        required: false
+        default: "all"
+      playbook:
+        description: "Playbook to run"
+        required: false
+        default: "site.yml"
+        type: choice
+        options:
+          - site.yml
+          - update-system.yml
+          - hardening.yml
+      environment:
+        description: "Environment to run the playbook"
+        required: false
+        default: "production"
+        type: choice
+        options:
+          - production
+          - staging
+
+env:
+  TF_VERSION: "1.7.5"
+  TF_CLOUD_ORGANIZATION: "brunopazdev"
+  ANSIBLE_INVENTORY: "inventory/${{ github.event.inputs.environment }}/hosts.yml"
+  ANSIBLE_VAULT_PASSWORD_FILE: .vault_pass.txt
+  ANSIBLE_PRIVATE_KEY_FILE: "${{ github.workspace }}/.ssh/ansible_private_key"
+  GALAXY_ROLES_PATH: ".ansible_galaxy/roles"
+  GALAXY_COLLECTIONS_PATH: ".ansible_galaxy/collections"
+  TF_WORKING_DIR: "terraform"
+
+defaults:
+  run:
+    working-directory: provision
+jobs:
+  playbook:
+    name: "Run playbook"
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install Ansible
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Set vault password file
+        run: |
+          echo ${{ secrets.ANSIBLE_VAULT_PASS }} > ${{ env.ANSIBLE_VAULT_PASSWORD_FILE }}
+
+
+      - name: Set private key file
+        run: |
+          mkdir -p ${{ github.workspace }}/.ssh
+          echo "$SSH_PRIVATE_KEY" > ${SSH_PRIVATE_KEY_FILE}
+          chmod 600 ${SSH_PRIVATE_KEY_FILE}
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_PRIVATE_KEY_FILE: ${{ env.ANSIBLE_PRIVATE_KEY_FILE }}
+
+      - name: Ansible Galaxy install
+        run: |
+          ansible-galaxy install -r requirements.yml -p ${{ env.GALAXY_ROLES_PATH }}
+          ansible-galaxy collection install -r requirements.yml -p ${{ env.GALAXY_COLLECTIONS_PATH }}
+
+      - name: Run playbook | ${{ env.PLAYBOOK }}
+        run: |
+          ansible-playbook "${PLAYBOOK}" \
+            --tags "${TAGS}" \
+            --limit "${LIMIT}"
+        env:
+          TAGS: ${{ github.event.inputs.tags }}
+          LIMIT: ${{ github.event.inputs.limit }}
+          PLAYBOOK: "playbooks/${{ github.event.inputs.playbook }}"

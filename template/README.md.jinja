@@ -1,0 +1,87 @@
+# {{ project_name }}
+
+> {{ project_description }}
+
+## 📃 What is included
+
+This project uses [Tertraform](https://terraform.io) and [Ansible](https://www.ansible.com/) to provision an [Hetzner Cloud](https://cloud.hetzner.com) server.
+
+The server includes a [Traefik](https://traefik.io/traefik/) instance and exposes a sample web application, based on [whoami](https://hub.docker.com/r/containous/whoami).
+
+[Cloudflare](https://hub.docker.com/r/containous/whoami) is used to expose the application via a domain name.
+
+
+## 🚀 Getting started
+
+### Pre-requisites
+
+[Devenv](https://devenv.sh/) is used to setup an isolated development envrionment with all the required tools. To install devenv, check the instructions of [Devenv Getting started guide](https://devenv.sh/getting-started/).
+
+While, not stricly mandatory, [Direnv](https://direnv.net/) is recommended to facilitate the management of the devenv envrionment and project level envrionment variables. To install direnv in your check, check [this](https://direnv.net/docs/installation.html) guide.
+
+### 🧑‍💻 Dev envrionment Setup
+
+**Clone the repository**
+
+```shell
+git clone {{repo_url}}
+cd {{ project_slug }}
+```
+
+**Enable direnv**
+
+```shell
+direnv allow
+```
+
+Direnv will automatically launch a `devenv` shell, with access to all the required tools.
+
+**Setup Ansible vault password**
+
+In order to encrypt Ansible secrets, [Ansible Vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html) is used.
+
+In order to be able to encrypt and decrypt Ansible secrets, you must set your vault password in `.vault_pass.txt` file.
+
+Ex:
+
+```sh
+echo -n "<my_vault_password>" > ./provision/.vault_pass.txt
+```
+
+### Setup SSH keys
+
+If you don´t already have a ssh key pair you can generate one with the following command:
+
+```shell
+task gen-ssh-key
+```
+
+This will generate a new SSH key pair in the `<project_root>/.ssh`.
+
+> [!IMPORTANT]
+> You will need to set the Terraform vars `ssh_authorized_key` and `ssh_priv_key_file` with the value of your public key and the path to the generated private ssh key, respectively. Also set `ANSIBLE_PRIVATE_KEY_FILE` envrionment variable.
+
+
+
+### Setup Terraform variables
+
+Terraform supports multiple ways to provide variables. This project uses `*.tfvars` files during development and `TF_VAR` envrionment variables on CI.
+
+When you enter  on the `devenv` shell for the first time, a `terraform/terraform.tfvars` should be created containing example values. If not, you can create this file manually by running:
+
+```shell
+cp terraform/terraform.tfvars.example terraform/terraform.tfvars
+```
+
+Next you need to modify your variables accordingly to the projecrt.
+
+#### Run tasks
+
+This project uses [Taskfile](https://taskfile.dev/) as task runner for common tasks. Run `task -l` or check [Taskfile.yml](Taskfile.yml) to see the available tasks.
+
+
+## Documentation
+
+For more detailed documentation, checks [docs](./docs/).
+
+

@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "redhat.vscode-yaml",
+        "redhat.ansible",
+        "hashicorp.terraform",
+        "arrterian.nix-env-selector",
+        "mkhl.direnv"
+    ]
+}

@@ -1,0 +1,8 @@
+hcloud_token         = "your_hetzner_cloud_token"
+machine_type         = "cx22"
+machine_image        = "ubuntu-24.04"
+ssh_authorized_key   = "your_ssh_public_key"
+ssh_priv_key_file    = "your_ssh_private_key"
+cloudflare_zone_id   = "your_cloudflare_zone_id"
+cloudflare_api_token = "your_cloudflare_api_token"
+project="my-infra"

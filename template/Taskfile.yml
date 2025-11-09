@@ -1,0 +1,32 @@
+# https://taskfile.dev
+
+version: "3"
+
+env:
+  FORCE_COLOR: "true"
+  SSH_KEY_NAME: "provision"
+
+includes:
+  tf:
+    dir: terraform
+    taskfile: ./terraform/Taskfile.yml
+
+  ansible:
+    dir: provision
+    taskfile: ./provision/Taskfile.yml
+
+tasks:
+  default:
+    desc: "Shows list of available tasks"
+    cmds:
+      - task -l
+    silent: true
+
+  gen-ssh-key:
+    desc: "Generate SSH key"
+    interactive: true
+    env:
+      COMMENT: "Provisioning key"
+    cmds:
+      - mkdir -p .ssh
+      - ssh-keygen -t ed25519 -C "${COMMENT}" -f .ssh/{{.SSH_KEY_NAME }} -N ""

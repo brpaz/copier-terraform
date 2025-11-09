@@ -1,0 +1,24 @@
+#  Refer for explanation to following link:
+#  https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+pre-commit:
+  parallel: true
+  commands:
+    tf-format:
+      glob: "*.{tf}"
+      run: task tf:fmt -- {staged_files}
+
+    tf-validate:
+      glob: "*.{tf}"
+      run: task tf:validate
+
+    tf-lint:
+      glob: "*.{tf}"
+      run: task tf:lint
+
+    ansible-lint:
+      glob: "provision/**/*.yml"
+      run: task ansible:lint
+
+    tf-gen-docs:
+      glob: "*.{tf}"
+      run: task tf:docs

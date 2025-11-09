@@ -1,0 +1,27 @@
+_min_copier_version: 9.0.0
+_subdirectory: template
+project_name:
+  type: str
+  help: What is your project name?
+  validator: >-
+    {% if not project_name %}
+    project_name cannot be empty.
+    {% endif %}
+
+project_slug:
+  type: str
+  default: "{{ project_name | lower | replace(' ', '-') }}"
+  when: false
+
+project_description:
+  type: str
+  help: A short description of your project.
+
+repo_url:
+  type: str
+  help: The homepage URL for your project.
+  default: "https://github.com/{{ github_repository }}"
+
+# Global tasks
+_tasks:
+  - "git init"

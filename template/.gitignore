@@ -1,0 +1,11 @@
+# Dev envrionment configuration
+.env
+.env.local
+.direnv
+.devenv*
+devenv.local.nix
+
+.ssh
+
+# Log files
+*.log
