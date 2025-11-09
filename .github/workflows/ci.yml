@@ -37,6 +37,7 @@ jobs:
           tmpdir=$(mktemp -d)
           copier copy -r HEAD --force --trust --skip-tasks \
             -d project_name="Test Project" \
+            -d project_description="Some project" \
             . "$tmpdir"
           echo "output_dir=$tmpdir/test-project" >> $GITHUB_OUTPUT
 
@@ -46,7 +47,7 @@ jobs:
           echo "Checking essential files in: $OUTPUT_DIR"
 
           REQUIRED_FILES=(
-            "test.txt"
+            "main.tf"
           )
 
           MISSING=()
