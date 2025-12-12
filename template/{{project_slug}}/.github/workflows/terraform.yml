@@ -164,7 +164,7 @@ jobs:
         run: exit 1
 
       - name: Upload plan artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: plan
           path: plan.out
@@ -189,7 +189,7 @@ jobs:
         run: terraform init
 
       - name: Download plan artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: plan
 
